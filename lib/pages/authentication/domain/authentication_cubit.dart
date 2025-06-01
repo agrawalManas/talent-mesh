@@ -26,6 +26,11 @@ class AuthenticationCubit extends Cubit<AuthenticationState> {
         await _fetchUserDetails(id: currentUser.uid);
         final user = getUser();
 
+        if (user.role?.userRole == Role.admin) {
+          AppRoutes.appRouter.pushReplacement(Routes.dashboard);
+          return;
+        }
+
         /// if user has completed onboarding
         /// take them to dashboard
         /// otherwise onboarding

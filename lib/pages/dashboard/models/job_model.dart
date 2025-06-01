@@ -118,11 +118,13 @@ class SalaryRange {
   final num? min;
   final num? max;
   final bool? isVisible;
+  final String? salaryType;
   SalaryRange({
     this.id,
     this.min,
     this.max,
     this.isVisible,
+    this.salaryType,
   });
 
   Map<String, dynamic> toMap() {
@@ -131,12 +133,14 @@ class SalaryRange {
       'min': min,
       'max': max,
       'isVisible': isVisible,
+      'salaryType': salaryType,
     };
   }
 
   factory SalaryRange.fromMap(Map<String, dynamic> map) {
     return SalaryRange(
       id: map['id'] as String?,
+      salaryType: map['salaryType'] as String?,
       min: map['min'] as num?,
       max: map['max'] as num?,
       isVisible: map['isVisible'] as bool?,

@@ -68,6 +68,8 @@ class _SigninViewState extends State<SigninView> {
               controller: _emailController,
               textInputAction: TextInputAction.next,
               textInputType: TextInputType.emailAddress,
+              focusedBorderColor: AppColors.primary,
+              cursorColor: AppColors.primary,
             ),
             16.verticalSpace,
 
@@ -79,6 +81,8 @@ class _SigninViewState extends State<SigninView> {
               isPasswordFiled: true,
               controller: _passWordController,
               textInputAction: TextInputAction.done,
+              focusedBorderColor: AppColors.primary,
+              cursorColor: AppColors.primary,
             ),
             32.verticalSpace,
 
@@ -92,6 +96,7 @@ class _SigninViewState extends State<SigninView> {
                   wantBorder: false,
                   disableElevation: true,
                   isLoading: state.signinApiStatus == ApiStatus.loading,
+                  buttonColor: AppColors.primary,
                   onPressed: () {
                     if (state.signinApiStatus != ApiStatus.loading) {
                       _authenticationCubit.signIn(

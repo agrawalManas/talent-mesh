@@ -1,6 +1,5 @@
 import 'package:talent_mesh/common/constants.dart';
 import 'package:talent_mesh/common/utils/utils.dart';
-import 'package:talent_mesh/common/widgets/switch/custom_switch_with_label.dart';
 import 'package:talent_mesh/pages/dashboard/domain/dashboard_cubit.dart';
 import 'package:talent_mesh/pages/dashboard/presentation/widgets/update_filter_bottomsheet.dart';
 import 'package:talent_mesh/styles/app_colors.dart';
@@ -25,7 +24,7 @@ class AdminFilterManagement extends StatelessWidget {
             crossAxisCount: 2,
             crossAxisSpacing: 12.w,
             mainAxisSpacing: 12.h,
-            // childAspectRatio: 1.2,
+            childAspectRatio: 0.96,
           ),
           itemCount: adminFilterOptions.length,
           itemBuilder: (context, index) {
@@ -60,16 +59,16 @@ class AdminFilterManagement extends StatelessWidget {
             );
           },
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Disable Remote Jobs filter?',
-              style: AppTextStyles.body3Medium14(),
-            ),
-            CustomSwitchWithLabel(),
-          ],
-        ),
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //   children: [
+        //     Text(
+        //       'Disable Remote Jobs filter?',
+        //       style: AppTextStyles.body3Medium14(),
+        //     ),
+        //     CustomSwitchWithLabel(),
+        //   ],
+        // ),
       ],
     );
   }
@@ -139,6 +138,8 @@ class AdminFilterManagement extends StatelessWidget {
         return Icons.psychology;
       case 'business_center':
         return Icons.business_center;
+      case 'people':
+        return Icons.people;
       default:
         return Icons.settings;
     }

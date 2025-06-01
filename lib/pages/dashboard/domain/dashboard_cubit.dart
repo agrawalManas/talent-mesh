@@ -22,8 +22,14 @@ class DashboardCubit extends Cubit<DashboardState> {
   final FirebaseAuth _auth = dependencyLocator<FirebaseAuth>();
   final _user = getUser();
 
+  List<String> _filters = [];
+
   void resetState() {
     emit(const DashboardState());
+  }
+
+  void setFilters(List<String> filters) {
+    _filters = filters;
   }
 
   Future<void> logoutUser() async {
@@ -65,7 +71,6 @@ class DashboardCubit extends Cubit<DashboardState> {
       } catch (error) {
         emit(state.copyWith(jobFiltersApiStatus: ApiStatus.failure));
         log('Error while fetching job filters- ${error.toString()}');
-        // Utils.showToast(message: 'Something went wrong while getting filters');
       }
     }
   }
@@ -179,24 +184,51 @@ class DashboardCubit extends Cubit<DashboardState> {
     }
   }
 
+  filter_model.ExperienceLevel setExperience({
+    required String position,
+    required String yearsFrom,
+    String? yearsTo,
+  }) {
+    return filter_model.ExperienceLevel(
+      createdAt: DateTime.now(),
+      id: Utils.getUUID(),
+      name: position,
+      yearsFrom: double.parse(yearsFrom.replaceAll('years', '')),
+      yearsTo: double.parse((yearsTo ?? '0').replaceAll('years', '')),
+    );
+  }
+
+  SalaryRange? setSalaryRange({required String min, required String max}) {
+    final minSalary = double.parse(min.replaceAll(',', ''));
+    final maxSalary = double.parse(max.replaceAll(',', ''));
+    if (minSalary >= maxSalary) {
+      Utils.showToast(message: 'Min salary should be less tha Max salary');
+      return null;
+    }
+    return SalaryRange(
+      id: Utils.getUUID(),
+      isVisible: true,
+      max: maxSalary,
+      min: minSalary,
+      salaryType: 'LPA',
+    );
+  }
+
   /// update existing filters, only for admins
   Future<void> _updateFiltersInDB({
     required filter_model.JobFilterModel data,
   }) async {
-    await _firestore
-        .collection('jobFilters')
-        .doc(getFilters().id)
-        .update(data.toMap());
+    await _firestore.collection('jobFilters').doc(getFilters().id).update(
+          data.toMap(),
+        );
   }
 
   Future<void> updateFilters({
     required JobFilters filterType,
     String? text,
     bool? remote,
-    num? max,
-    num? min,
-    num? yearsFrom,
-    num? yearsTo,
+    SalaryRange? salary,
+    filter_model.ExperienceLevel? experienceLevel,
   }) async {
     if (_user.role?.userRole == Role.admin) {
       try {
@@ -204,36 +236,56 @@ class DashboardCubit extends Cubit<DashboardState> {
         filter_model.JobFilterModel existingFilters = getFilters();
         switch (filterType) {
           case JobFilters.locations:
-            final locations = text!.split(',');
             existingFilters = existingFilters.copyWith(
               locations: [
                 ...List.from(existingFilters.locations ?? []),
-                ...List.generate(locations.length, (index) {
+                ...List.generate(_filters.length, (index) {
                   return filter_model.Location(
                     id: Utils.getUUID(),
                     country: 'India',
                     createdAt: DateTime.now(),
-                    name: locations[index].trim(),
+                    name: _filters[index].trim(),
                   );
                 }),
               ],
             );
-          case JobFilters.jobRoles:
+          case JobFilters.domains:
             existingFilters = existingFilters.copyWith(
-              jobRoles: [
-                ...List.from(existingFilters.jobRoles ?? []),
-                filter_model.Filter(
-                  id: Utils.getUUID(),
-                  createdAt: DateTime.now(),
-                  name: text,
-                ),
+              domains: [
+                ...existingFilters.domains ?? [],
+                ...List.generate(_filters.length, (index) {
+                  return filter_model.Filter(
+                    id: Utils.getUUID(),
+                    createdAt: DateTime.now(),
+                    name: _filters[index].trim(),
+                  );
+                }),
+              ],
+            );
+          case JobFilters.companySize:
+            existingFilters = existingFilters.copyWith(
+              companySize: [
+                ...existingFilters.companySize ?? [],
+                ...List.generate(_filters.length, (index) {
+                  return filter_model.Filter(
+                    id: Utils.getUUID(),
+                    createdAt: DateTime.now(),
+                    name: _filters[index].trim(),
+                  );
+                }),
               ],
             );
           case JobFilters.employmentType:
             existingFilters = existingFilters.copyWith(
               employmentType: [
-                ...List.from(existingFilters.employmentType ?? []),
-                text,
+                ...existingFilters.employmentType ?? [],
+                ...List.generate(_filters.length, (index) {
+                  return filter_model.Filter(
+                    id: Utils.getUUID(),
+                    createdAt: DateTime.now(),
+                    name: _filters[index].trim(),
+                  );
+                }),
               ],
             );
           case JobFilters.remote:
@@ -241,16 +293,15 @@ class DashboardCubit extends Cubit<DashboardState> {
               remote: remote,
             );
           case JobFilters.skills:
-            final skills = text!.split(',');
             existingFilters = existingFilters.copyWith(
               skills: [
                 ...List.from(existingFilters.skills ?? []),
-                ...List.generate(skills.length, (index) {
+                ...List.generate(_filters.length, (index) {
                   return filter_model.Skill(
                     id: Utils.getUUID(),
                     category: null,
                     createdAt: DateTime.now(),
-                    name: skills[index].trim(),
+                    name: _filters[index].trim(),
                   );
                 })
               ],
@@ -259,25 +310,18 @@ class DashboardCubit extends Cubit<DashboardState> {
             existingFilters = existingFilters.copyWith(
               experienceLevels: [
                 ...List.from(existingFilters.experienceLevels ?? []),
-                filter_model.ExperienceLevel(
-                  id: Utils.getUUID(),
-                  yearsFrom: yearsFrom,
-                  yearsTo: yearsTo,
-                  createdAt: DateTime.now(),
-                  name: text,
-                ),
+                experienceLevel,
               ],
             );
           case JobFilters.salaryRange:
+            if (salary == null) {
+              emit(state.copyWith(addFilterApiStatus: ApiStatus.init));
+              return;
+            }
             existingFilters = existingFilters.copyWith(
               salaryRange: [
                 ...List.from(existingFilters.salaryRange ?? []),
-                SalaryRange(
-                  id: Utils.getUUID(),
-                  isVisible: true,
-                  max: max,
-                  min: min,
-                ),
+                salary,
               ],
             );
           case JobFilters.none:
@@ -293,8 +337,7 @@ class DashboardCubit extends Cubit<DashboardState> {
             .registerSingleton<filter_model.JobFilterModel>(filterData);
         emit(state.copyWith(addFilterApiStatus: ApiStatus.success));
         Utils.showToast(
-          message:
-              'Successfully added another ${filterType.name.toCapitalized()}',
+          message: 'Successfully added ${filterType.name.toPascalCase()}',
         );
         AppRoutes.appRouter.pop();
       } catch (error) {

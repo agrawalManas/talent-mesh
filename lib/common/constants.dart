@@ -1,9 +1,9 @@
-const appName = 'Recruirely';
+const appName = 'Talent Mesh';
 
 const List<Map<String, String>> adminFilterOptions = [
   {
-    'title': 'Job Roles',
-    'description': 'Add a new Job Role',
+    'title': 'Domains',
+    'description': 'Add a new Domain',
     'icon': 'work',
   },
   {
@@ -31,6 +31,11 @@ const List<Map<String, String>> adminFilterOptions = [
     'description': 'Add a new Employment Type',
     'icon': 'business_center',
   },
+  // {
+  //   'title': 'Company Size',
+  //   'description': 'Add a new Company Size',
+  //   'icon': 'people',
+  // },
 ];
 
 const List<String> jobDomains = [
@@ -43,10 +48,3 @@ const List<String> jobDomains = [
   'Sales',
   'Customer Support',
 ];
-
-// List<ExperienceLevel> experienceLevels = [
-//   ExperienceLevel(
-//     name: 'Entry Level',
-//     yearsFrom:
-//   ),
-// ];

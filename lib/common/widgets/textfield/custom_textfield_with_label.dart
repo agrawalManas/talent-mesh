@@ -52,6 +52,8 @@ class CustomTextfieldWithLabel extends StatefulWidget {
     this.contentPadding,
     this.prefixText,
     this.prefixWidget,
+    this.focusedBorderColor,
+    this.cursorColor,
     super.key,
   });
 
@@ -96,6 +98,8 @@ class CustomTextfieldWithLabel extends StatefulWidget {
   final EdgeInsets? contentPadding;
   final String? prefixText;
   final Widget? prefixWidget;
+  final Color? focusedBorderColor;
+  final Color? cursorColor;
 
   @override
   State<CustomTextfieldWithLabel> createState() =>
@@ -166,7 +170,7 @@ class _CustomTextfieldWithLabelState extends State<CustomTextfieldWithLabel> {
                 _focusNode.unfocus();
               },
               obscureText: value,
-              cursorColor: context.userRole.accentColor,
+              cursorColor: widget.cursorColor ?? context.userRole.accentColor,
               textAlign: widget.textAlign,
               maxLines: widget.maxLines,
               minLines: widget.minLines,
@@ -250,7 +254,7 @@ class _CustomTextfieldWithLabelState extends State<CustomTextfieldWithLabel> {
                     widget.borderRadius ?? 24.r,
                   ),
                   borderSide: BorderSide(
-                    color: _focusedBorderColor,
+                    color: widget.focusedBorderColor ?? _focusedBorderColor,
                     width: widget.borderWidth,
                   ),
                 ),

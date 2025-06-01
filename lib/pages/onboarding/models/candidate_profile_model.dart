@@ -1,6 +1,6 @@
 import 'package:talent_mesh/pages/dashboard/models/job_model.dart';
 import 'package:talent_mesh/pages/job_listing/model/job_filter_model.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' hide Filter;
 
 class CandidateProfileModel {
   final String? userId;
@@ -9,7 +9,7 @@ class CandidateProfileModel {
   final String? summary;
   final String? phoneNumber;
   final DateTime? dateOfBirth;
-  final List<String>? preferredDomains;
+  final List<Filter>? preferredDomains;
   final List<Skill?>? skills;
   final List<Location?>? preferredLocations;
   final SalaryRange? expectedSalary;
@@ -56,9 +56,10 @@ class CandidateProfileModel {
       experienceLevel: json['experienceLevel'] != null
           ? ExperienceLevel.fromMap(json['experienceLevel'])
           : null,
-      preferredDomains: json['preferredDomains'] != null
-          ? List<String>.from(json['preferredDomains'])
-          : null,
+      preferredDomains: (json['domains'] as List?)
+              ?.map((domain) => Filter.fromMap(domain))
+              .toList() ??
+          [],
       skills: json['skills'] != null
           ? (json['experiences'] as List).map((e) => Skill.fromMap(e)).toList()
           : null,
