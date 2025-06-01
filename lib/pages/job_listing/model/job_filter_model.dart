@@ -1,20 +1,18 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:talent_mesh/pages/dashboard/models/job_model.dart';
 
 class JobFilterModel {
   final List<Filter?>? jobRoles;
-  final List<dynamic>? domains;
+  final List<Filter>? domains;
   final List<dynamic>? industries;
-  final List<dynamic>? companySize;
+  final List<Filter>? companySize;
   final List<ExperienceLevel?>? experienceLevels;
   final List<Skill?>? skills;
   final List<Location?>? locations;
   final String? lastUpdatedBy;
   final DateTime? lastUpdatedAt;
   final List<SalaryRange?>? salaryRange;
-  final List? employmentType;
+  final List<Filter>? employmentType;
   final bool? remote;
   final String? id;
 
@@ -36,9 +34,18 @@ class JobFilterModel {
 
   factory JobFilterModel.fromMap(Map<String, dynamic> map) {
     return JobFilterModel(
-      domains: map['domains'] as List<dynamic>?,
-      employmentType: map['employmentType'],
-      companySize: map['companySize'] as List<dynamic>?,
+      domains: (map['domains'] as List?)
+              ?.map((domain) => Filter.fromMap(domain))
+              .toList() ??
+          [],
+      employmentType: (map['employmentType'] as List?)
+              ?.map((type) => Filter.fromMap(type))
+              .toList() ??
+          [],
+      companySize: (map['companySize'] as List?)
+              ?.map((size) => Filter.fromMap(size))
+              .toList() ??
+          [],
       jobRoles: (map['jobRoles'] as List?)
               ?.map((role) => Filter.fromMap(role))
               .toList() ??
@@ -71,14 +78,14 @@ class JobFilterModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'domains': domains,
+      'domains': domains?.map((domain) => domain.toMap()).toList(),
       'jobRoles': jobRoles?.map((role) => role?.toMap()).toList(),
       'industries': industries,
-      'companySize': companySize,
+      'companySize': companySize?.map((size) => size.toMap()).toList(),
       'experienceLevels':
           experienceLevels?.map((level) => level?.toMap()).toList(),
       'skills': skills?.map((skill) => skill?.toMap()).toList(),
-      'employmentType': employmentType,
+      'employmentType': employmentType?.map((type) => type.toMap()).toList(),
       'locations': locations?.map((location) => location?.toMap()).toList(),
       'lastUpdatedBy': lastUpdatedBy,
       'lastUpdatedAt': lastUpdatedAt,
@@ -90,16 +97,16 @@ class JobFilterModel {
 
   JobFilterModel copyWith({
     List<Filter?>? jobRoles,
-    List<String>? domains,
+    List<Filter>? domains,
     List<ExperienceLevel?>? experienceLevels,
-    List<dynamic>? companySize,
+    List<Filter>? companySize,
     List<dynamic>? industries,
     List<Skill?>? skills,
     List<Location?>? locations,
     String? lastUpdatedBy,
     DateTime? lastUpdatedAt,
     List<SalaryRange?>? salaryRange,
-    List? employmentType,
+    List<Filter>? employmentType,
     bool? remote,
     String? id,
   }) {

@@ -2,7 +2,8 @@ import 'dart:developer';
 import 'package:talent_mesh/common/utils/locator.dart';
 import 'package:talent_mesh/common/utils/utils.dart';
 import 'package:talent_mesh/pages/dashboard/models/job_model.dart';
-import 'package:talent_mesh/pages/job_listing/model/job_filter_model.dart';
+import 'package:talent_mesh/pages/job_listing/model/job_filter_model.dart'
+    as jobFilter;
 import 'package:talent_mesh/pages/onboarding/domain/candidate/candidate_onboarding_state.dart';
 import 'package:talent_mesh/pages/onboarding/models/candidate_profile_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -23,7 +24,7 @@ class CandidateOnboardingCubit extends Cubit<CandidateOnboardingState> {
 
   //--------step-2-controllers
   final TextEditingController _summaryController = TextEditingController();
-  final List<String> _candidatePreferredDomains = [];
+  final List<jobFilter.Filter> _candidatePreferredDomains = [];
 
   //---------step-3-controllers
   final TextEditingController _minSalaryController = TextEditingController();
@@ -42,14 +43,14 @@ class CandidateOnboardingCubit extends Cubit<CandidateOnboardingState> {
     emit(state.copyWith(candidateDOB: date));
   }
 
-  void onSelectCandidateExperienceLevel(ExperienceLevel? value) {
+  void onSelectCandidateExperienceLevel(jobFilter.ExperienceLevel? value) {
     log('experience level- $value');
     emit(state.copyWith(candidateExperienceLevel: value));
   }
 
-  void onSelectCandidatePreferredDomains(List<dynamic> value) {
+  void onSelectCandidatePreferredDomains(List<jobFilter.Filter> value) {
     for (var element in value) {
-      _candidatePreferredDomains.add(element.toString());
+      _candidatePreferredDomains.add(element);
     }
     emit(state.copyWith(candidatePreferredDomains: _candidatePreferredDomains));
     log('preferred domains- $_candidatePreferredDomains');
@@ -65,22 +66,24 @@ class CandidateOnboardingCubit extends Cubit<CandidateOnboardingState> {
     log('preferred employment types- $_candidatePreferredEmploymentTypes');
   }
 
-  void onSelectCandidatePreferredLocations(List<Location?> locations) {
+  void onSelectCandidatePreferredLocations(
+      List<jobFilter.Location?> locations) {
     emit(state.copyWith(preferredLocations: locations));
   }
 
-  void onSelectCandidateSkills(Skill? skill) {
+  void onSelectCandidateSkills(jobFilter.Skill? skill) {
     if ((state.candidateSkills ?? []).contains(skill)) {
       Utils.showToast(message: 'Skill already added, try another one!');
       return;
     }
-    final updatedSkills = List<Skill?>.from(state.candidateSkills ?? [])
-      ..add(skill);
+    final updatedSkills =
+        List<jobFilter.Skill?>.from(state.candidateSkills ?? [])..add(skill);
     emit(state.copyWith(candidateSkills: updatedSkills));
   }
 
   void onRemoveSelectedSkill(int index) {
-    final updatedSkills = List<Skill>.from(state.candidateSkills ?? []);
+    final updatedSkills =
+        List<jobFilter.Skill>.from(state.candidateSkills ?? []);
     updatedSkills.removeAt(index);
     emit(state.copyWith(candidateSkills: updatedSkills));
   }

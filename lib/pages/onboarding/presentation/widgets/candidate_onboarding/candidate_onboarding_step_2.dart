@@ -109,13 +109,13 @@ class _CandidateOnboardingStep2State extends State<CandidateOnboardingStep2> {
           BlocBuilder<OnboardingCubit, OnboardingState>(
             builder: (context, state) {
               final candidateOnboardingState = _candidateOnboardingCubit.state;
-              return ChipSelector<dynamic>(
+              return ChipSelector<Filter>(
                 initiallySelectedOptions:
                     candidateOnboardingState.candidatePreferredDomains ?? [],
                 isMultiSelect: true,
                 options: state.filters?.domains ?? [],
                 getText: (value) {
-                  return value.toString();
+                  return value.name ?? '-';
                 },
                 onSelectOption: (value) {
                   _candidateOnboardingCubit.onSelectCandidatePreferredDomains(

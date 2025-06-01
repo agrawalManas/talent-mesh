@@ -16,7 +16,8 @@ enum JobStatus { draft, active, closed, filled }
 enum JobFilters {
   employmentType,
   experienceLevels,
-  jobRoles,
+  domains,
+  companySize,
   locations,
   salaryRange,
   skills,

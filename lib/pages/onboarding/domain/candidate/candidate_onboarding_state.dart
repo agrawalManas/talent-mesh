@@ -8,7 +8,7 @@ class CandidateOnboardingState extends Equatable {
   final int currentPage;
   final DateTime? candidateDOB;
   final ExperienceLevel? candidateExperienceLevel;
-  final List<String>? candidatePreferredDomains;
+  final List<Filter>? candidatePreferredDomains;
   final List<String>? candidatePreferredEmploymentTypes;
   final List<Skill?>? candidateSkills;
   final List<Location?>? preferredLocations;
@@ -57,7 +57,7 @@ class CandidateOnboardingState extends Equatable {
     final int? currentPage,
     final DateTime? candidateDOB,
     final ExperienceLevel? candidateExperienceLevel,
-    final List<String>? candidatePreferredDomains,
+    final List<Filter>? candidatePreferredDomains,
     final List<String>? candidatePreferredEmploymentTypes,
     final List<Location?>? preferredLocations,
     final List<Skill?>? candidateSkills,

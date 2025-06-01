@@ -35,8 +35,8 @@ extension StringExtensions on String {
 
   JobFilters get filterType {
     switch (this) {
-      case 'Job Role':
-        return JobFilters.jobRoles;
+      case 'Domain':
+        return JobFilters.domains;
       case 'Experience Level':
         return JobFilters.experienceLevels;
       case 'Skill':
@@ -72,17 +72,26 @@ extension StringExtensions on String {
       return '';
     }
 
-    // Split the string by non-alphanumeric characters
-    List<String> words = split(
-      RegExp(r'[^a-zA-Z0-9]'),
-    ).where((word) => word.isNotEmpty).toList();
+    // Handle camelCase by splitting on uppercase letters
+    String processedString = replaceAllMapped(
+      RegExp(r'([a-z])([A-Z])'),
+      (match) => '${match.group(1)} ${match.group(2)}',
+    );
 
-    // Capitalize first letter of each word and join them
+    // Split the string by non-alphanumeric characters and spaces
+    List<String> words = processedString
+        .split(
+          RegExp(r'[^a-zA-Z0-9]'),
+        )
+        .where((word) => word.isNotEmpty)
+        .toList();
+
+    // Capitalize first letter of each word and join them with spaces
     return words.map((word) {
       if (word.isEmpty) return '';
       return word[0].toUpperCase() +
           (word.length > 1 ? word.substring(1).toLowerCase() : '');
-    }).join('');
+    }).join(' ');
   }
 
   String? toCurrency() {

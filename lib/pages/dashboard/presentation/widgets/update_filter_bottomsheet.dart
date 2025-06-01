@@ -1,10 +1,14 @@
+import 'package:flutter/services.dart';
 import 'package:talent_mesh/common/app_enums.dart';
 import 'package:talent_mesh/common/utils/extensions/context_extensions.dart';
 import 'package:talent_mesh/common/utils/extensions/enum_extensions.dart';
 import 'package:talent_mesh/common/utils/extensions/string_extensions.dart';
+import 'package:talent_mesh/common/utils/textfield_input_formatters/currency_formatter.dart';
+import 'package:talent_mesh/common/utils/textfield_input_formatters/year_suffix_formatter.dart';
 import 'package:talent_mesh/common/widgets/bottomsheet/custom_bottomsheet_header.dart';
 import 'package:talent_mesh/common/widgets/button/custom_button.dart';
 import 'package:talent_mesh/common/widgets/textfield/custom_textfield_with_label.dart';
+import 'package:talent_mesh/common/widgets/textfield/labeled_textfield_with_text_chip.dart';
 import 'package:talent_mesh/pages/dashboard/domain/dashboard_cubit.dart';
 import 'package:talent_mesh/pages/dashboard/domain/dashboard_state.dart';
 import 'package:talent_mesh/styles/app_colors.dart';
@@ -28,6 +32,7 @@ class UpdateFilterBottomsheet extends StatelessWidget {
 
   final TextEditingController _controller = TextEditingController();
   final TextEditingController _controller2 = TextEditingController();
+  final TextEditingController _controller3 = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -44,48 +49,7 @@ class UpdateFilterBottomsheet extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 24.verticalSpace,
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: CustomTextfieldWithLabel(
-                        controller: _controller,
-                        fillColor: AppColors.surface,
-                        labelText: isSalaryFilter ? 'From' : title,
-                        hintText: isSalaryFilter
-                            ? 'eg. 300000'
-                            : _getHintText(title: title),
-                        isRequired: true,
-                        textInputAction: isSalaryFilter
-                            ? TextInputAction.next
-                            : TextInputAction.done,
-                        textInputType: isSalaryFilter
-                            ? const TextInputType.numberWithOptions(
-                                decimal: true,
-                              )
-                            : null,
-                      ),
-                    ),
-                    if (isSalaryFilter) ...[
-                      16.horizontalSpace,
-                      Expanded(
-                        child: CustomTextfieldWithLabel(
-                          labelText: isSalaryFilter ? 'To' : title,
-                          isRequired: true,
-                          hintText: '400000',
-                          controller: _controller2,
-                          fillColor: AppColors.surface,
-                          textInputAction: isSalaryFilter
-                              ? TextInputAction.next
-                              : TextInputAction.done,
-                          textInputType: const TextInputType.numberWithOptions(
-                            decimal: true,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
+                _buildContent(title.filterType),
                 32.verticalSpace,
               ],
             ),
@@ -120,26 +84,28 @@ class UpdateFilterBottomsheet extends StatelessWidget {
                     disableElevation: true,
                     onPressed: () {
                       if (state.addFilterApiStatus != ApiStatus.loading) {
-                        if (title.filterType == JobFilters.salaryRange) {
-                          cubit.updateFilters(
-                            filterType: title.filterType,
-                            min: num.parse(_controller.text.toString().trim()),
-                            max: num.parse(_controller2.text.toString().trim()),
-                          );
-                        } else if (title.filterType ==
-                            JobFilters.experienceLevels) {
-                          final years = _controller.text.split('to');
-                          cubit.updateFilters(
-                            filterType: title.filterType,
-                            yearsFrom: num.parse(years.first.toString().trim()),
-                            yearsTo: num.parse(years.last.toString().trim()),
-                          );
-                        } else {
-                          cubit.updateFilters(
-                            filterType: title.filterType,
-                            text: _controller.text.trim(),
-                          );
-                        }
+                        cubit.updateFilters(
+                          filterType: title.filterType,
+                          salary: (title.filterType == JobFilters.salaryRange)
+                              ? cubit.setSalaryRange(
+                                  min: _controller.text.trim(),
+                                  max: _controller2.text.trim(),
+                                )
+                              : null,
+                          experienceLevel:
+                              (title.filterType == JobFilters.experienceLevels)
+                                  ? cubit.setExperience(
+                                      position: _controller.text.trim(),
+                                      yearsFrom: _controller2.text.trim(),
+                                      yearsTo: _controller3.text.trim(),
+                                    )
+                                  : null,
+                          text: (title.filterType ==
+                                      JobFilters.experienceLevels ||
+                                  title.filterType == JobFilters.salaryRange)
+                              ? null
+                              : _controller.text.trim(),
+                        );
                       }
                     },
                     child: Text(
@@ -158,10 +124,130 @@ class UpdateFilterBottomsheet extends StatelessWidget {
     );
   }
 
+  Widget _buildContent(JobFilters filter) {
+    switch (filter) {
+      case JobFilters.experienceLevels:
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CustomTextfieldWithLabel(
+              labelText: 'Position',
+              isRequired: true,
+              hintText: 'eg. Associate',
+              controller: _controller,
+              fillColor: AppColors.surface,
+            ),
+            16.verticalSpace,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: CustomTextfieldWithLabel(
+                    labelText: 'From',
+                    isRequired: true,
+                    hintText: 'eg. 2',
+                    controller: _controller2,
+                    fillColor: AppColors.surface,
+                    textInputAction: TextInputAction.next,
+                    textInputType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    inputFormatters: [
+                      YearsSuffixFormatter(),
+                      LengthLimitingTextInputFormatter(8),
+                    ],
+                  ),
+                ),
+                16.horizontalSpace,
+                Expanded(
+                  child: CustomTextfieldWithLabel(
+                    labelText: 'To',
+                    isRequired: false,
+                    hintText: 'eg. 4',
+                    controller: _controller3,
+                    fillColor: AppColors.surface,
+                    textInputAction: TextInputAction.done,
+                    textInputType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    inputFormatters: [
+                      YearsSuffixFormatter(),
+                      LengthLimitingTextInputFormatter(8),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ],
+        );
+      case JobFilters.salaryRange:
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: CustomTextfieldWithLabel(
+                    labelText: 'Minimum',
+                    isRequired: true,
+                    hintText: '2,00,000',
+                    controller: _controller,
+                    fillColor: AppColors.surface,
+                    textInputAction: TextInputAction.next,
+                    textInputType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    inputFormatters: [
+                      CurrencyFormatter(),
+                      LengthLimitingTextInputFormatter(16),
+                    ],
+                  ),
+                ),
+                16.horizontalSpace,
+                Expanded(
+                  child: CustomTextfieldWithLabel(
+                    labelText: 'Maximum',
+                    isRequired: true,
+                    hintText: '5,00,000',
+                    controller: _controller2,
+                    fillColor: AppColors.surface,
+                    textInputAction: TextInputAction.done,
+                    textInputType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    inputFormatters: [
+                      CurrencyFormatter(),
+                      LengthLimitingTextInputFormatter(16),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      default:
+        return LabeledTextfieldWithTextChip(
+          controller: _controller,
+          fillColor: AppColors.surface,
+          labelText: title,
+          hintText: _getHintText(title: title),
+          isRequired: true,
+          textInputAction:
+              isSalaryFilter ? TextInputAction.next : TextInputAction.done,
+          enableChips: true,
+          onChipsChanged: (chips) {
+            cubit.setFilters(chips);
+          },
+          chipDeleteIconColor: Colors.red,
+        );
+    }
+  }
+
   String _getHintText({required String title}) {
     switch (title) {
-      case 'Job Role':
-        return 'eg. Software Developer';
+      case 'Domain':
+        return 'eg. Marketing, Content Writing';
       case 'Experience Level':
         return 'eg. 2 to 3';
       case 'Skill':
