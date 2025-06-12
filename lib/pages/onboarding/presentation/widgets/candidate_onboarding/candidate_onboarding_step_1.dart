@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:talent_mesh/common/utils/extensions/context_extensions.dart';
 import 'package:talent_mesh/common/utils/extensions/enum_extensions.dart';
 import 'package:talent_mesh/common/widgets/date_picker/custom_date_picker_with_label.dart';
@@ -71,6 +72,10 @@ class _CandidateOnboardingStep1State extends State<CandidateOnboardingStep1> {
             controller: _candidateOnboardingCubit.numberController,
             textInputType: TextInputType.phone,
             textInputAction: TextInputAction.done,
+            inputFormatters: [
+              LengthLimitingTextInputFormatter(10),
+              FilteringTextInputFormatter.digitsOnly,
+            ],
           ),
           24.verticalSpace,
 

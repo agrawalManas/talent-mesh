@@ -2,11 +2,13 @@ import 'package:talent_mesh/common/utils/extensions/context_extensions.dart';
 import 'package:talent_mesh/common/utils/extensions/enum_extensions.dart';
 import 'package:talent_mesh/common/utils/utils.dart';
 import 'package:talent_mesh/common/widgets/chip/chip_selector.dart';
+import 'package:talent_mesh/common/widgets/containers/container_with_dashed_border.dart';
 import 'package:talent_mesh/common/widgets/textfield/custom_textfield_with_label.dart';
 import 'package:talent_mesh/pages/job_listing/model/job_filter_model.dart';
 import 'package:talent_mesh/pages/onboarding/domain/candidate/candidate_onboarding_cubit.dart';
 import 'package:talent_mesh/pages/onboarding/domain/onboarding_cubit.dart';
 import 'package:talent_mesh/pages/onboarding/domain/onboarding_state.dart';
+import 'package:talent_mesh/styles/app_colors.dart';
 import 'package:talent_mesh/styles/app_text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -64,7 +66,28 @@ class _CandidateOnboardingStep2State extends State<CandidateOnboardingStep2> {
               vertical: 8.h,
             ),
           ),
-          24.verticalSpace,
+
+          //----------Resume
+          ContainerWithDashedBorder(
+            margin: EdgeInsets.symmetric(vertical: 24.h),
+            width: double.infinity,
+            bgColor: AppColors.surface,
+            height: 64.h,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Upload your resume',
+                  style: AppTextStyles.body2Medium16(),
+                ),
+                8.horizontalSpace,
+                Icon(
+                  Icons.upload,
+                  color: context.userRole.accentColor,
+                ),
+              ],
+            ),
+          ),
 
           //----------Experience Level
           Text(
@@ -90,7 +113,7 @@ class _CandidateOnboardingStep2State extends State<CandidateOnboardingStep2> {
                 },
                 onSelectOption: (value) {
                   _candidateOnboardingCubit.onSelectCandidateExperienceLevel(
-                    value.first,
+                    value[0],
                   );
                 },
               );

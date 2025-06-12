@@ -71,6 +71,6 @@ class Utils {
     String separator = 'years to ',
     String suffix = 'years',
   ]) {
-    return '${experience?.yearsFrom ?? 0} $separator ${experience?.yearsTo ?? 0} $suffix';
+    return '${(experience?.yearsFrom ?? 0).toString().padLeft(1, '0')} $separator ${(experience?.yearsTo ?? 0).toString().padLeft(2)} $suffix';
   }
 }
