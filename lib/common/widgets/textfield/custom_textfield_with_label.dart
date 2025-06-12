@@ -207,7 +207,7 @@ class _CustomTextfieldWithLabelState extends State<CustomTextfieldWithLabel> {
                               )
                         : null
                     : widget.prefixIcon,
-                fillColor: widget.fillColor ?? AppColors.background,
+                fillColor: widget.fillColor ?? AppColors.surface,
                 filled: true,
                 hintText: widget.hintText,
                 errorStyle: AppTextStyles.body4Regular12(
